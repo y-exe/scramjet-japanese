@@ -1,4 +1,5 @@
 import { createServer } from "vite";
+import "dotenv/config";
 import fs from "node:fs/promises";
 import { stdout } from "node:process";
 import chalk from "chalk";
@@ -9,22 +10,23 @@ import { createReadStream } from "node:fs";
 import rspackConfig from "./rspack.config.ts";
 import { server as wisp } from "@mercuryworkshop/wisp-js/server";
 import {
-	black,
-	normalizeWebsocketUrl,
-	logSuccess,
-	printBanner,
-	resetSuccessLog,
-	runRspack,
-	warnOnUrlEscape,
+  black,
+  normalizeWebsocketUrl,
+  logSuccess,
+  printBanner,
+  resetSuccessLog,
+  runRspack,
+  warnOnUrlEscape,
 } from "./devlib.ts";
+import { createPersistentCookieMiddleware } from "./server/persistentCookies.ts";
 
 const image = await fs.readFile("./assets/scramjet-mini-noalpha.png");
 
 const commit = execSync("git rev-parse --short HEAD", {
-	encoding: "utf-8",
+  encoding: "utf-8",
 }).replace(/\r?\n|\r/g, "");
 const branch = execSync("git rev-parse --abbrev-ref HEAD", {
-	encoding: "utf-8",
+  encoding: "utf-8",
 }).replace(/\r?\n|\r/g, "");
 const packagejson = JSON.parse(await fs.readFile("./package.json", "utf-8"));
 const version = packagejson.version;
@@ -33,31 +35,44 @@ const DEMO_PORT = process.env.DEMO_PORT || 4141;
 const WISP_PORT = process.env.WISP_PORT || 4142;
 
 if (process.env.VITE_WISP_URL) {
-	process.env.VITE_WISP_URL = normalizeWebsocketUrl(process.env.VITE_WISP_URL);
+  process.env.VITE_WISP_URL = normalizeWebsocketUrl(process.env.VITE_WISP_URL);
+} else if (process.env.VITE_PUBLIC_ORIGIN) {
+  const publicOrigin = new URL(process.env.VITE_PUBLIC_ORIGIN);
+  publicOrigin.protocol = publicOrigin.protocol === "http:" ? "ws:" : "wss:";
+  publicOrigin.pathname = "/wisp/";
+  publicOrigin.search = "";
+  publicOrigin.hash = "";
+  process.env.VITE_WISP_URL = normalizeWebsocketUrl(publicOrigin.toString());
 } else {
-	process.env.VITE_WISP_URL = `ws://localhost:${WISP_PORT}/`;
+  process.env.VITE_WISP_URL = `ws://localhost:${WISP_PORT}/`;
 }
 
 const wispserver = http.createServer((req, res) => {
-	res.writeHead(200, { "Content-Type": "text/plain" });
-	res.end("wisp server js rewrite");
+  res.writeHead(200, { "Content-Type": "text/plain" });
+  res.end("wisp server js rewrite");
 });
 wisp.options.allow_private_ips = true;
 wisp.options.allow_loopback_ips = true;
 
 wispserver.on("upgrade", (req, socket, head) => {
-	wisp.routeRequest(req, socket, head);
+  wisp.routeRequest(req, socket, head);
 });
 
 wispserver.listen(Number(WISP_PORT));
 
 const server = await createServer({
-	configFile: "./packages/demo/vite.config.ts",
-	root: "./packages/demo",
-	server: {
-		port: Number(DEMO_PORT),
-		strictPort: true,
-	},
+  configFile: "./packages/demo/vite.config.ts",
+  root: "./packages/demo",
+  server: {
+    port: Number(DEMO_PORT),
+    strictPort: true,
+  },
+});
+
+const persistentCookieMiddleware = createPersistentCookieMiddleware();
+server.middlewares.stack.unshift({
+  route: "",
+  handle: persistentCookieMiddleware,
 });
 
 warnOnUrlEscape(server);
@@ -71,20 +86,22 @@ const note = (text: string) => chalk.hex("#CDB4DB")(text);
 const connector = chalk.hex("#8D99AE").dim("@");
 
 const lines = [
-	black()(`${highlight("SCRAMJET DEV SERVER")}`),
-	black()(
-		`${accent("demo")} ${connector} ${urlColor(
-			`http://localhost:${DEMO_PORT}/`
-		)}`
-	),
-	black()(
-		`${accent("wisp")} ${connector} ${urlColor(
-			process.env.VITE_WISP_URL ?? ""
-		)}`
-	),
-	black()(chalk.dim(`[${branch}] ${commit} scramjet/${version}`)),
+  black()(`${highlight("SCRAMJET DEV SERVER")}`),
+  black()(
+    `${accent("demo")} ${connector} ${urlColor(
+      `http://localhost:${DEMO_PORT}/`,
+    )}`,
+  ),
+  black()(
+    `${accent("wisp")} ${connector} ${urlColor(
+      process.env.VITE_WISP_URL ?? "",
+    )}`,
+  ),
+  black()(chalk.dim(`[${branch}] ${commit} scramjet/${version}`)),
 ];
 
 printBanner(image, lines);
 
-runRspack(rspackConfig);
+if (process.env.SCRAMJET_SKIP_RSPACK !== "1") {
+  runRspack(rspackConfig);
+}

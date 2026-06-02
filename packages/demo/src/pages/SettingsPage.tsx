@@ -39,7 +39,7 @@ const SettingsView: Component<
 
 	const applySettings = async () => {
 		this.error = "";
-		this.status = "Applying settings...";
+		this.status = "設定を保存しています...";
 
 		try {
 			const nextWispUrl = normalizeWispUrl(this.wispUrlInput);
@@ -64,18 +64,18 @@ const SettingsView: Component<
 			}
 			this.status =
 				wispChanged || transportChanged
-					? "Settings saved. Transport updated for new requests."
-					: "Settings saved.";
+					? "設定を保存しました。通信方式は次回以降のリクエストに反映されます。"
+					: "設定を保存しました。";
 		} catch (error) {
 			this.status = "";
 			this.error =
-				error instanceof Error ? error.message : "Failed to apply settings.";
+				error instanceof Error ? error.message : "設定の保存に失敗しました。";
 		}
 	};
 
 	const resetDefaults = async () => {
 		this.error = "";
-		this.status = "Resetting settings...";
+		this.status = "初期値に戻しています...";
 		this.wispUrlInput = demoSettingsDefaults.wispUrl;
 		this.transportInput = demoSettingsDefaults.transport;
 		this.homeUrlInput = demoSettingsDefaults.homeUrl;
@@ -86,15 +86,14 @@ const SettingsView: Component<
 	return (
 		<div class="settings-panel">
 			<div class="settings-header">
-				<h2>Demo Settings</h2>
+				<h2>プロキシ設定</h2>
 				<p>
-					Update runtime settings without rebuilding the demo. Wisp changes
-					apply to future requests only.
+					実行中のプロキシ設定を変更できます。Wispの変更は次回以降のリクエストに反映されます。
 				</p>
 			</div>
 
 			<label class="field">
-				<span class="label">Wisp server</span>
+				<span class="label">Wispサーバー</span>
 				<input
 					type="text"
 					value={use(this.wispUrlInput)}
@@ -103,11 +102,11 @@ const SettingsView: Component<
 						this.wispUrlInput = (e.target as HTMLInputElement).value;
 					}}
 				/>
-				<span class="hint">Example: ws://localhost:4142/</span>
+				<span class="hint">例: ws://localhost:4142/</span>
 			</label>
 
 			<label class="field">
-				<span class="label">Transport</span>
+				<span class="label">通信方式</span>
 				<select
 					value={use(this.transportInput)}
 					on:change={(e: Event) => {
@@ -120,12 +119,12 @@ const SettingsView: Component<
 					))}
 				</select>
 				<span class="hint">
-					Transport client used to dispatch outbound requests over Wisp.
+					Wisp経由で外部リクエストを送るときに使うクライアントです。
 				</span>
 			</label>
 
 			<label class="field">
-				<span class="label">Home page URL</span>
+				<span class="label">ホームURL</span>
 				<input
 					type="text"
 					value={use(this.homeUrlInput)}
@@ -135,12 +134,12 @@ const SettingsView: Component<
 					}}
 				/>
 				<span class="hint">
-					Used as the default browser URL and can be pushed into the omnibox.
+					ブラウザの初期URLとして使われます。
 				</span>
 			</label>
 
 			<label class="field">
-				<span class="label">Request log limit</span>
+				<span class="label">リクエスト履歴の上限</span>
 				<input
 					type="number"
 					min="10"
@@ -152,26 +151,26 @@ const SettingsView: Component<
 					}}
 				/>
 				<span class="hint">
-					Maximum number of captured requests kept in memory.
+					メモリ上に保持するリクエスト履歴の最大件数です。
 				</span>
 			</label>
 
 			<div class="actions">
 				<button type="button" class="primary" on:click={applySettings}>
-					Apply Settings
+					保存
 				</button>
 				<button type="button" on:click={resetDefaults}>
-					Reset Defaults
+					初期値に戻す
 				</button>
 				<button
 					type="button"
 					on:click={() => {
 						syncInputsFromStore();
 						this.error = "";
-						this.status = "Inputs reverted to saved settings.";
+						this.status = "保存済みの設定に戻しました。";
 					}}
 				>
-					Revert Inputs
+					入力を戻す
 				</button>
 			</div>
 
@@ -191,11 +190,13 @@ SettingsView.style = css`
 		flex: 1;
 		min-width: 0;
 		min-height: 0;
-		padding: 16px;
-		background: #0f0f0f;
-		color: #e5e7eb;
+		padding: 28px;
+		background: #ffffff;
+		color: #111827;
 		overflow: auto;
 		font-family:
+			"Google Sans",
+			"Noto Sans JP",
 			system-ui,
 			-apple-system,
 			"Segoe UI",
@@ -206,18 +207,18 @@ SettingsView.style = css`
 	.settings-header {
 		margin-bottom: 16px;
 		padding-bottom: 12px;
-		border-bottom: 1px solid #222;
+		border-bottom: 1px solid #e5e7eb;
 	}
 
 	.settings-header h2 {
 		margin: 0 0 6px;
-		font-size: 1rem;
-		font-weight: 600;
+		font-size: 1.18rem;
+		font-weight: 800;
 	}
 
 	.settings-header p {
 		margin: 0;
-		color: #a8a8a8;
+		color: #6b7280;
 		line-height: 1.45;
 		font-size: 0.84rem;
 	}
@@ -233,17 +234,17 @@ SettingsView.style = css`
 	.label {
 		font-size: 0.84rem;
 		font-weight: 600;
-		color: #e5e7eb;
+		color: #111827;
 	}
 
 	input,
 	select {
 		width: 100%;
 		padding: 0.55em 0.65em;
-		border: 1px solid #2a2a2a;
-		border-radius: 0;
-		background: #111;
-		color: #e5e7eb;
+		border: 1px solid #d1d5db;
+		border-radius: 8px;
+		background: #ffffff;
+		color: #111827;
 		font: inherit;
 		font-size: 0.88rem;
 		outline: none;
@@ -252,7 +253,8 @@ SettingsView.style = css`
 
 	input:focus,
 	select:focus {
-		border-color: #4a4a4a;
+		border-color: #5865f2;
+		box-shadow: 0 0 0 3px rgba(88, 101, 242, 0.12);
 	}
 
 	select {
@@ -260,8 +262,8 @@ SettingsView.style = css`
 		-webkit-appearance: none;
 		-moz-appearance: none;
 		background-image:
-			linear-gradient(45deg, transparent 50%, #8f8f8f 50%),
-			linear-gradient(135deg, #8f8f8f 50%, transparent 50%);
+			linear-gradient(45deg, transparent 50%, #6b7280 50%),
+			linear-gradient(135deg, #6b7280 50%, transparent 50%);
 		background-position:
 			calc(100% - 14px) 50%,
 			calc(100% - 9px) 50%;
@@ -274,7 +276,7 @@ SettingsView.style = css`
 	}
 
 	.hint {
-		color: #8f8f8f;
+		color: #6b7280;
 		font-size: 0.78rem;
 	}
 
@@ -286,10 +288,10 @@ SettingsView.style = css`
 	}
 
 	button {
-		border: 1px solid #2a2a2a;
-		border-radius: 0;
-		background: #1a1a1a;
-		color: #e5e7eb;
+		border: 1px solid #d1d5db;
+		border-radius: 8px;
+		background: #ffffff;
+		color: #111827;
 		padding: 0.45em 0.8em;
 		cursor: pointer;
 		font: inherit;
@@ -299,34 +301,35 @@ SettingsView.style = css`
 	}
 
 	button:hover {
-		background: #222;
+		background: #f3f4f6;
 	}
 
 	button.primary {
-		border-color: #4a4a4a;
-		background: #1f1f1f;
+		border-color: #111827;
+		background: #111827;
+		color: #ffffff;
 	}
 
 	button.primary:hover {
-		background: #262626;
+		background: #000000;
 	}
 
 	.message {
 		margin-top: 12px;
 		padding: 0.65em 0.8em;
-		border: 1px solid #2a2a2a;
-		background: #111;
+		border: 1px solid #e5e7eb;
+		background: #f9fafb;
 		font-size: 0.82rem;
 		max-width: 720px;
 	}
 
 	.message.error {
-		border-color: #5a2a2a;
-		color: #e7b0b0;
+		border-color: #fecaca;
+		color: #991b1b;
 	}
 
 	.message.status {
-		color: #b8c2cc;
+		color: #374151;
 	}
 `;
 export default SettingsView;

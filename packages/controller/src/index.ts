@@ -94,6 +94,7 @@ export class ManagedPlugin extends Plugin {
 const COOKIE_DB_NAME = "__scramjet_controller";
 const COOKIE_STORE_NAME = "state";
 const COOKIE_STATE_KEY = "cookies";
+const SERVER_COOKIE_STATE_ENDPOINT = "/api/cookies/state";
 const BROADCASTCHANNEL_NAME = "__scramjet_controller_channel";
 
 let cookieDbPromise: Promise<IDBDatabase> | null = null;
@@ -193,6 +194,61 @@ async function writeCookieState(
 	} catch (error) {
 		console.error("Failed to persist controller cookies:", error);
 		return currentUpdatedAt;
+	}
+}
+
+async function readServerCookieState(): Promise<PersistedCookieState | null> {
+	try {
+		const response = await fetch(SERVER_COOKIE_STATE_ENDPOINT, {
+			credentials: "same-origin",
+			cache: "no-store",
+		});
+
+		if (!response.ok) {
+			return null;
+		}
+
+		const value = await response.json();
+		const state = {
+			updatedAt: Number(value.updatedAt),
+			cookies: typeof value.cookies === "string" ? value.cookies : "{}",
+		};
+
+		return parsePersistedCookieState(state);
+	} catch (error) {
+		console.error("Failed to read server-side controller cookies:", error);
+		return null;
+	}
+}
+
+async function writeServerCookieState(
+	cookies: string,
+	updatedAt: number
+): Promise<PersistedCookieState | null> {
+	try {
+		const response = await fetch(SERVER_COOKIE_STATE_ENDPOINT, {
+			method: "PUT",
+			credentials: "same-origin",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({ cookies, updatedAt }),
+		});
+
+		if (!response.ok) {
+			return null;
+		}
+
+		const value = await response.json();
+		const state = {
+			updatedAt: Number(value.updatedAt),
+			cookies: typeof value.cookies === "string" ? value.cookies : "{}",
+		};
+
+		return parsePersistedCookieState(state);
+	} catch (error) {
+		console.error("Failed to write server-side controller cookies:", error);
+		return null;
 	}
 }
 
@@ -592,7 +648,15 @@ export class Controller {
 		}
 
 		this.cookieSyncPromise = (async () => {
-			const persisted = await readCookieState();
+			const [localPersisted, serverPersisted] = await Promise.all([
+				readCookieState(),
+				readServerCookieState(),
+			]);
+			const persisted =
+				(serverPersisted?.updatedAt ?? 0) > (localPersisted?.updatedAt ?? 0)
+					? serverPersisted
+					: localPersisted;
+
 			if (persisted && persisted.updatedAt > this.cookieUpdatedAt) {
 				this.cookieJar.load(persisted.cookies);
 				this.cookieUpdatedAt = persisted.updatedAt;
@@ -614,10 +678,21 @@ export class Controller {
 			return;
 		}
 
-		this.cookieUpdatedAt = updatedAt;
+		const serverState = await writeServerCookieState(
+			this.cookieJar.dump(),
+			updatedAt
+		);
+
+		if (serverState && serverState.updatedAt > updatedAt) {
+			this.cookieJar.load(serverState.cookies);
+			this.cookieUpdatedAt = serverState.updatedAt;
+		} else {
+			this.cookieUpdatedAt = updatedAt;
+		}
+
 		this.cookieSyncDirty = false;
 		this.cookieSyncChannel.postMessage({
-			updatedAt,
+			updatedAt: this.cookieUpdatedAt,
 		});
 	}
 

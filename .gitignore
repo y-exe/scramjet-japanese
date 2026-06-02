@@ -5,5 +5,12 @@ packages/core/rewriter/wasm/out
 packages/core/rewriter/*.js
 packages/core/blob-report
 dist
+.env
+.cookie-store
+.devserver.log
+/a.php
+/blank-debug.png
+/proxy-home*.png
+/ui-check*.png
 
 packages/runway/coverage

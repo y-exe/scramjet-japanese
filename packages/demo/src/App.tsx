@@ -1,10 +1,8 @@
-import { css, createDelegate, type Component } from "dreamland/core";
-import type { Frame } from "@mercuryworkshop/scramjet-controller";
-import FlagEditor from "./components/FlagEditor";
+import { css, type Component } from "dreamland/core";
 import BrowserView from "./pages/BrowserView";
 import RequestViewer from "./pages/RequestViewer";
-import PlaygroundView from "./pages/Playground";
 import SettingsView from "./pages/SettingsPage";
+import CookieManager from "./pages/CookieManager";
 import { Omnibox } from "./pages/BrowserView";
 import { requestsState } from "./pages/RequestViewer";
 
@@ -12,13 +10,16 @@ const App: Component<
 	{},
 	{},
 	{
-		activeTab: "browser" | "requests" | "playground" | "settings";
+		activeTab: "browser" | "requests" | "settings" | "cookies";
 	}
 > = function (cx) {
 	this.activeTab ??= "browser";
 	return (
 		<div>
 			<div class="top-bar">
+				<a class="brand" href="/">
+					yexe.xyz
+				</a>
 				<div class="tab-bar">
 					<button
 						class={use(this.activeTab).map(
@@ -28,7 +29,7 @@ const App: Component<
 							this.activeTab = "browser";
 						}}
 					>
-						Browser
+						ブラウザ
 					</button>
 					<button
 						class={use(this.activeTab).map(
@@ -38,20 +39,10 @@ const App: Component<
 							this.activeTab = "requests";
 						}}
 					>
-						Requests{" "}
+						リクエスト{" "}
 						{use(requestsState.requests).map((requests) =>
 							requests.length ? `(${requests.length})` : ""
 						)}
-					</button>
-					<button
-						class={use(this.activeTab).map(
-							(tab) => `tab-button ${tab === "playground" ? "active" : ""}`
-						)}
-						on:click={() => {
-							this.activeTab = "playground";
-						}}
-					>
-						Playground
 					</button>
 					<button
 						class={use(this.activeTab).map(
@@ -61,14 +52,21 @@ const App: Component<
 							this.activeTab = "settings";
 						}}
 					>
-						Settings
+						設定
+					</button>
+					<button
+						class={use(this.activeTab).map(
+							(tab) => `tab-button ${tab === "cookies" ? "active" : ""}`
+						)}
+						on:click={() => {
+							this.activeTab = "cookies";
+						}}
+					>
+						Cookie
 					</button>
 					{use(this.activeTab)
 						.map((tab) => tab === "browser")
 						.andThen(<Omnibox />)}
-				</div>
-				<div class="top-actions">
-					<FlagEditor inline={true} />
 				</div>
 			</div>
 			<div
@@ -94,27 +92,25 @@ const App: Component<
 			<div
 				class={use(this.activeTab).map(
 					(tab) =>
-						`tab-panel playground-panel ${tab === "playground" ? "active" : ""}`
-				)}
-			>
-				<PlaygroundView
-					active={use(this.activeTab).map((tab) => tab === "playground")}
-				/>
-			</div>
-			<div
-				class={use(this.activeTab).map(
-					(tab) =>
 						`tab-panel settings-tab ${tab === "settings" ? "active" : ""}`
 				)}
 			>
 				<SettingsView />
+			</div>
+			<div
+				class={use(this.activeTab).map(
+					(tab) =>
+						`tab-panel cookies-tab ${tab === "cookies" ? "active" : ""}`
+				)}
+			>
+				<CookieManager />
 			</div>
 		</div>
 	);
 };
 
 App.style = css`
-	@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,400,0,0");
+	@import url("https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..800;1,17..18,400..800&family=Noto+Sans+JP:wght@400;500;700;800&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,400,0,0");
 
 	:scope {
 		width: 100vw;
@@ -128,8 +124,16 @@ App.style = css`
 		left: 0;
 
 		padding: 0;
-		background: black;
+		background: #f8fafc;
 		box-sizing: border-box;
+		font-family:
+			"Google Sans",
+			"Noto Sans JP",
+			Inter,
+			system-ui,
+			-apple-system,
+			"Segoe UI",
+			sans-serif;
 	}
 	.material-symbols-outlined {
 		font-family: "Material Symbols Outlined";
@@ -150,47 +154,58 @@ App.style = css`
 		align-items: stretch;
 		gap: 0;
 		margin-bottom: 0;
-		border-bottom: 1px solid #4a4a4a;
-		background: #0f0f0f;
+		border-bottom: 1px solid #e5e7eb;
+		background: rgba(255, 255, 255, 0.88);
+		backdrop-filter: blur(14px);
+		min-height: 64px;
+		padding: 0 24px;
+		position: relative;
+		z-index: 10;
+	}
+	.brand {
+		display: inline-flex;
+		align-items: center;
+		color: #111827;
+		font-family: "Google Sans", "Noto Sans JP", system-ui, sans-serif;
+		font-size: 1.25rem;
+		font-weight: 800;
+		letter-spacing: 0;
+		text-decoration: none;
+		margin-right: 38px;
 	}
 	.tab-bar {
 		display: flex;
 		flex: 1;
 		align-items: stretch;
-		gap: 0;
+		gap: 2px;
+		font-family: "Google Sans", "Noto Sans JP", system-ui, sans-serif;
 	}
 	.tab-button {
 		border: 1px solid transparent;
-		border-bottom: 0;
 		background: transparent;
-		color: #a8a8a8;
-		padding: 0.24em 0.62em;
-		border-radius: 0;
+		color: #6b7280;
+		font-family: "Google Sans", "Noto Sans JP", system-ui, sans-serif;
+		padding: 0 15px;
+		border-radius: 8px;
 		cursor: pointer;
-		font-size: 0.84em;
+		font-size: 0.88rem;
+		font-weight: 600;
 		line-height: 1.2;
-		min-height: 28px;
+		min-height: 64px;
 		margin: 0;
 		white-space: nowrap;
 		display: inline-flex;
 		align-items: center;
 	}
 	.tab-button:hover {
-		background: #181818;
-		color: #d0d0d0;
+		background: #f3f4f6;
+		color: #111827;
 	}
 	.tab-button.active {
-		background: #1f1f1f;
-		color: #fff;
-		border-color: #4a4a4a;
-		margin-bottom: -1px;
-	}
-	.top-actions {
-		display: flex;
-		align-items: center;
-		margin-left: auto;
-		padding: 0 0.35em;
-		min-height: 28px;
+		background: transparent;
+		color: #111827;
+		border-color: transparent;
+		margin-bottom: 0;
 	}
 	.tab-panel {
 		flex: 1;
@@ -205,15 +220,29 @@ App.style = css`
 	.requests-panel {
 		flex-direction: column;
 	}
-	.playground-panel {
-		width: 100%;
-		min-width: 0;
-		min-height: 0;
-	}
 	.settings-tab {
 		width: 100%;
 		min-width: 0;
 		min-height: 0;
+	}
+
+	@media (max-width: 820px) {
+		.top-bar {
+			padding: 0 12px;
+			min-height: 56px;
+		}
+
+		.brand {
+			font-size: 1rem;
+			margin-right: 10px;
+		}
+
+		.tab-button {
+			padding: 0 9px;
+			font-size: 0.78rem;
+			min-height: 56px;
+		}
+
 	}
 `;
 export default App;

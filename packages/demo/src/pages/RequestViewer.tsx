@@ -295,8 +295,8 @@ StableBodyViewer.style = css`
 		max-width: 100%;
 		max-height: 480px;
 		border-radius: 8px;
-		border: 1px solid #222;
-		background: #0b0b0b;
+		border: 1px solid #e5e7eb;
+		background: #ffffff;
 		display: block;
 	}
 	.body-editor {
@@ -326,10 +326,10 @@ StableBodyViewer.style = css`
 		padding: 0.8em;
 		max-height: 420px;
 		overflow: auto;
-		border: 1px solid #222;
+		border: 1px solid #e5e7eb;
 		border-radius: 8px;
-		background: #0b0b0b;
-		color: #e5e7eb;
+		background: #ffffff;
+		color: #111827;
 		font-family:
 			"JetBrains Mono", "SF Mono", "Fira Code", Consolas, "Liberation Mono",
 			monospace;
@@ -340,9 +340,9 @@ StableBodyViewer.style = css`
 	}
 	.body-load-button {
 		align-self: flex-start;
-		border: 1px solid #2a2a2a;
-		background: #121212;
-		color: #e5e7eb;
+		border: 1px solid #d1d5db;
+		background: #ffffff;
+		color: #111827;
 		padding: 0.45em 0.7em;
 		border-radius: 6px;
 		font-size: 0.78em;
@@ -388,7 +388,7 @@ HeadersTable.style = css`
 		flex-direction: column;
 		gap: 0.25em;
 		font-size: 0.75em;
-		color: #e5e7eb;
+		color: #111827;
 	}
 	.header-row {
 		display: grid;
@@ -401,7 +401,7 @@ HeadersTable.style = css`
 		border-bottom: none;
 	}
 	.header-key {
-		color: #93c5fd;
+		color: #1d4ed8;
 		font-family:
 			"JetBrains Mono", "SF Mono", "Fira Code", Consolas, "Liberation Mono",
 			monospace;
@@ -409,7 +409,7 @@ HeadersTable.style = css`
 		word-break: break-all;
 	}
 	.header-value {
-		color: #e5e7eb;
+		color: #111827;
 		word-break: break-word;
 		line-height: 1.35;
 	}
@@ -478,9 +478,9 @@ RequestCard.style = css`
 		display: grid;
 		gap: 0.18em;
 		padding: 0.38em 0.5em;
-		border: 1px solid #262626;
+		border: 1px solid #e5e7eb;
 		border-radius: 6px;
-		background: #101010;
+		background: #ffffff;
 		cursor: pointer;
 		transition:
 			border-color 0.15s ease,
@@ -488,13 +488,13 @@ RequestCard.style = css`
 			background 0.15s ease;
 	}
 	.request-row:hover {
-		border-color: #3a3a3a;
-		background: #141414;
+		border-color: #cbd5e1;
+		background: #f9fafb;
 	}
 	.request-row.selected {
 		border-color: #60a5fa;
 		box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.5);
-		background: #141a22;
+		background: #eff6ff;
 	}
 	.request-primary {
 		display: flex;
@@ -512,7 +512,7 @@ RequestCard.style = css`
 	}
 	.request-method {
 		font-weight: 600;
-		color: #fff;
+		color: #1d4ed8;
 		padding: 0.08em 0.36em;
 		border-radius: 4px;
 		background: rgba(59, 130, 246, 0.2);
@@ -525,7 +525,7 @@ RequestCard.style = css`
 		border-radius: 4px;
 		background: rgba(148, 163, 184, 0.15);
 		border: 1px solid rgba(148, 163, 184, 0.35);
-		color: #e2e8f0;
+		color: #374151;
 		min-width: 2.2em;
 		text-align: center;
 		font-variant-numeric: tabular-nums;
@@ -533,22 +533,22 @@ RequestCard.style = css`
 	.request-status.status-2 {
 		background: rgba(34, 197, 94, 0.15);
 		border: 1px solid rgba(34, 197, 94, 0.35);
-		color: #bbf7d0;
+		color: #166534;
 	}
 	.request-status.status-3 {
 		background: rgba(56, 189, 248, 0.15);
 		border: 1px solid rgba(56, 189, 248, 0.35);
-		color: #bae6fd;
+		color: #0369a1;
 	}
 	.request-status.status-4 {
 		background: rgba(251, 191, 36, 0.15);
 		border: 1px solid rgba(251, 191, 36, 0.35);
-		color: #fde68a;
+		color: #92400e;
 	}
 	.request-status.status-5 {
 		background: rgba(248, 113, 113, 0.18);
 		border: 1px solid rgba(248, 113, 113, 0.4);
-		color: #fecaca;
+		color: #b91c1c;
 	}
 	.request-duration,
 	.request-destination,
@@ -559,7 +559,7 @@ RequestCard.style = css`
 	.request-url {
 		font-size: 0.76em;
 		line-height: 1.15;
-		color: #e5e7eb;
+		color: #111827;
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
@@ -569,7 +569,7 @@ RequestCard.style = css`
 	.request-type {
 		font-size: 1em;
 		line-height: 1;
-		color: #93c5fd;
+		color: #1d4ed8;
 		background: rgba(59, 130, 246, 0.1);
 		border: 1px solid rgba(59, 130, 246, 0.2);
 		padding: 0.08em 0.3em;
@@ -1010,17 +1010,17 @@ const RequestViewer: Component<
 			{activeSignal.map(() => null)}
 			<div class="requests-header">
 				<span>
-					Requests, oldest to newest (latest{" "}
+					リクエスト履歴: 古い順 (最大{" "}
 					{use(demoSettingsStore.maxRequests).map((max) => max)})
 				</span>
 				<button class="tab-action" on:click={clear}>
-					Clear
+					クリア
 				</button>
 			</div>
 			<div class="requests-toolbar">
 				<input
 					class="requests-search"
-					placeholder="Search requests"
+					placeholder="リクエストを検索"
 					value={use(this.search)}
 					on:input={(e: InputEvent) => {
 						this.search = (e.target as HTMLInputElement).value;
@@ -1034,7 +1034,7 @@ const RequestViewer: Component<
 							this.captureStreamBodies = (e.target as HTMLInputElement).checked;
 						}}
 					/>
-					<span>Capture post-rewrite stream bodies</span>
+					<span>書き換え後のストリーム本文を保存</span>
 				</label>
 			</div>
 			<div class="requests-content">
@@ -1062,8 +1062,8 @@ const RequestViewer: Component<
 								return (
 									<div class="requests-empty">
 										{requests.length === 0
-											? "No requests captured yet."
-											: "No requests match your search."}
+											? "まだリクエストはありません。"
+											: "検索条件に一致するリクエストはありません。"}
 									</div>
 								);
 							}
@@ -1086,7 +1086,7 @@ const RequestViewer: Component<
 							(hasSelected) => `requests-empty ${hasSelected ? "hidden" : ""}`
 						)}
 					>
-						Select a request to see details.
+						リクエストを選択すると詳細が表示されます。
 					</div>
 					<div
 						class={hasSelected.map(
@@ -1094,42 +1094,42 @@ const RequestViewer: Component<
 						)}
 					>
 						<details class="detail-section" open>
-							<summary>General</summary>
+							<summary>概要</summary>
 							<div class="detail-body">
 								<div class="detail-meta-table">
 									<div class="detail-meta-row">
-										<span class="detail-meta-key">Request URL</span>
+										<span class="detail-meta-key">リクエストURL</span>
 										<span class="detail-meta-value">{selectedUrl}</span>
 									</div>
 									<div class="detail-meta-row">
-										<span class="detail-meta-key">Request Method</span>
+										<span class="detail-meta-key">メソッド</span>
 										<span class="detail-meta-value">{selectedMethod}</span>
 									</div>
 									<div class="detail-meta-row">
-										<span class="detail-meta-key">Status Code</span>
+										<span class="detail-meta-key">ステータスコード</span>
 										<span class="detail-meta-value">{selectedStatus}</span>
 									</div>
 									<div class="detail-meta-row">
-										<span class="detail-meta-key">Duration</span>
+										<span class="detail-meta-key">所要時間</span>
 										<span class="detail-meta-value">{selectedDuration}</span>
 									</div>
 									<div class="detail-meta-row">
-										<span class="detail-meta-key">Destination</span>
+										<span class="detail-meta-key">送信先種別</span>
 										<span class="detail-meta-value">{selectedDestination}</span>
 									</div>
 									<div class="detail-meta-row">
-										<span class="detail-meta-key">Mode</span>
+										<span class="detail-meta-key">モード</span>
 										<span class="detail-meta-value">{selectedMode}</span>
 									</div>
 									<div class="detail-meta-row">
-										<span class="detail-meta-key">Content Type</span>
+										<span class="detail-meta-key">コンテンツタイプ</span>
 										<span class="detail-meta-value">{selectedContentType}</span>
 									</div>
 								</div>
 							</div>
 						</details>
 						<details class="detail-section" open>
-							<summary>Response Headers</summary>
+							<summary>レスポンスヘッダー</summary>
 							<div class="detail-body">
 								<div class="detail-toggle">
 									<button
@@ -1143,7 +1143,7 @@ const RequestViewer: Component<
 											this.responseHeadersView = "post";
 										}}
 									>
-										Post-rewrite
+										書き換え後
 									</button>
 									<button
 										class={use(this.responseHeadersView).map(
@@ -1156,7 +1156,7 @@ const RequestViewer: Component<
 											this.responseHeadersView = "pre";
 										}}
 									>
-										Pre-rewrite
+										書き換え前
 									</button>
 								</div>
 								<div class="detail-block">
@@ -1165,7 +1165,7 @@ const RequestViewer: Component<
 							</div>
 						</details>
 						<details class="detail-section" open>
-							<summary>Request Headers</summary>
+							<summary>リクエストヘッダー</summary>
 							<div class="detail-body">
 								<div class="detail-toggle">
 									<button
@@ -1179,7 +1179,7 @@ const RequestViewer: Component<
 											this.requestHeadersView = "post";
 										}}
 									>
-										Post-rewrite
+										書き換え後
 									</button>
 									<button
 										class={use(this.requestHeadersView).map(
@@ -1192,7 +1192,7 @@ const RequestViewer: Component<
 											this.requestHeadersView = "pre";
 										}}
 									>
-										Pre-rewrite
+										書き換え前
 									</button>
 								</div>
 								<div class="detail-block">
@@ -1201,7 +1201,7 @@ const RequestViewer: Component<
 							</div>
 						</details>
 						<details class="detail-section" open>
-							<summary>Response Body</summary>
+							<summary>レスポンス本文</summary>
 							<div class="detail-body">
 								<div class="detail-toggle">
 									<button
@@ -1215,7 +1215,7 @@ const RequestViewer: Component<
 											this.responseBodyView = "post";
 										}}
 									>
-										Post-rewrite
+										書き換え後
 									</button>
 									<button
 										class={use(this.responseBodyView).map(
@@ -1228,7 +1228,7 @@ const RequestViewer: Component<
 											this.responseBodyView = "pre";
 										}}
 									>
-										Pre-rewrite
+										書き換え前
 									</button>
 								</div>
 								<StableBodyViewer
@@ -1243,7 +1243,7 @@ const RequestViewer: Component<
 						{showRequestBody.map((showRequestBody) =>
 							showRequestBody ? (
 								<details class="detail-section" open>
-									<summary>Request Body</summary>
+									<summary>リクエスト本文</summary>
 									<div class="detail-body">
 										<StableBodyViewer
 											value={requestBodyValue}
@@ -1270,9 +1270,9 @@ RequestViewer.style = css`
 		min-height: 0;
 	}
 	.tab-action {
-		border: 1px solid #333;
-		background: #1f1f1f;
-		color: #ddd;
+		border: 1px solid #d1d5db;
+		background: #ffffff;
+		color: #111827;
 		padding: 0.35em 0.75em;
 		border-radius: 6px;
 		cursor: pointer;
@@ -1283,12 +1283,14 @@ RequestViewer.style = css`
 		flex-direction: column;
 		flex: 1;
 		min-height: 0;
-		background: #0f0f0f;
-		border: 1px solid #222;
+		background: #ffffff;
+		border: 1px solid #e5e7eb;
 		border-radius: 0;
 		padding: 0.5em;
-		color: #e5e5e5;
+		color: #111827;
 		font-family:
+			"Google Sans",
+			"Noto Sans JP",
 			system-ui,
 			-apple-system,
 			"Segoe UI",
@@ -1299,7 +1301,7 @@ RequestViewer.style = css`
 	}
 	.requests-header {
 		font-size: 0.82em;
-		color: #aaa;
+		color: #6b7280;
 		margin-bottom: 0.35em;
 		display: flex;
 		align-items: center;
@@ -1313,9 +1315,9 @@ RequestViewer.style = css`
 	}
 	.requests-search {
 		flex: 1;
-		background: #121212;
-		border: 1px solid #2a2a2a;
-		color: #e5e7eb;
+		background: #ffffff;
+		border: 1px solid #d1d5db;
+		color: #111827;
 		padding: 0.45em 0.65em;
 		border-radius: 8px;
 		font-size: 0.85em;
@@ -1328,7 +1330,7 @@ RequestViewer.style = css`
 		align-items: center;
 		gap: 0.4em;
 		font-size: 0.8em;
-		color: #cbd5e1;
+		color: #4b5563;
 		white-space: nowrap;
 		user-select: none;
 	}
@@ -1354,17 +1356,17 @@ RequestViewer.style = css`
 		flex-direction: column;
 		gap: 0.5em;
 		overflow: auto;
-		background: #111;
-		border: 1px solid #222;
+		background: #f9fafb;
+		border: 1px solid #e5e7eb;
 		border-radius: 8px;
 		padding: 0.75em;
 	}
 	.requests-empty {
 		padding: 1em;
-		border: 1px dashed #333;
+		border: 1px dashed #d1d5db;
 		border-radius: 8px;
 		text-align: center;
-		color: #777;
+		color: #6b7280;
 	}
 	.hidden {
 		display: none !important;
@@ -1374,7 +1376,7 @@ RequestViewer.style = css`
 		flex-direction: column;
 	}
 	.detail-section {
-		border-top: 1px solid #1f1f1f;
+		border-top: 1px solid #e5e7eb;
 		padding: 0.65em 0;
 	}
 	.detail-section:first-of-type {
@@ -1385,7 +1387,7 @@ RequestViewer.style = css`
 		list-style: none;
 		cursor: pointer;
 		font-size: 0.95em;
-		color: #f3f4f6;
+		color: #111827;
 		letter-spacing: 0.02em;
 		display: flex;
 		align-items: center;
@@ -1396,8 +1398,8 @@ RequestViewer.style = css`
 		display: none;
 	}
 	.detail-section summary::before {
-		content: "▸";
-		color: #9ca3af;
+		content: "›";
+		color: #6b7280;
 		transition: transform 0.15s ease;
 	}
 	.detail-section[open] summary::before {
@@ -1413,9 +1415,9 @@ RequestViewer.style = css`
 		flex-wrap: wrap;
 	}
 	.toggle-button {
-		border: 1px solid #2a2a2a;
-		background: #121212;
-		color: #9ca3af;
+		border: 1px solid #d1d5db;
+		background: #ffffff;
+		color: #6b7280;
 		padding: 0.25em 0.6em;
 		border-radius: 6px;
 		font-size: 0.75em;
@@ -1423,15 +1425,15 @@ RequestViewer.style = css`
 	}
 	.toggle-button.active {
 		border-color: #60a5fa;
-		color: #e5e7eb;
-		background: rgba(96, 165, 250, 0.15);
+		color: #1d4ed8;
+		background: #eff6ff;
 	}
 	.detail-meta-table {
 		display: flex;
 		flex-direction: column;
 		gap: 0.35em;
 		font-size: 0.8em;
-		color: #d1d5db;
+		color: #374151;
 	}
 	.detail-meta-row {
 		display: grid;
@@ -1444,17 +1446,17 @@ RequestViewer.style = css`
 		border-bottom: none;
 	}
 	.detail-meta-key {
-		color: #9ca3af;
+		color: #6b7280;
 		font-weight: 600;
 		letter-spacing: 0.01em;
 	}
 	.detail-meta-value {
-		color: #e5e7eb;
+		color: #111827;
 		word-break: break-word;
 	}
 	.detail-block {
-		background: #0b0b0b;
-		border: 1px solid #1f1f1f;
+		background: #ffffff;
+		border: 1px solid #e5e7eb;
 		border-radius: 8px;
 		padding: 0.6em 0.7em;
 		margin-bottom: 0.6em;
@@ -1471,8 +1473,8 @@ RequestViewer.style = css`
 		max-width: 100%;
 		max-height: 480px;
 		border-radius: 8px;
-		border: 1px solid #222;
-		background: #0b0b0b;
+		border: 1px solid #e5e7eb;
+		background: #ffffff;
 		display: block;
 	}
 	.headers-table {
@@ -1480,7 +1482,7 @@ RequestViewer.style = css`
 		flex-direction: column;
 		gap: 0.25em;
 		font-size: 0.75em;
-		color: #e5e7eb;
+		color: #111827;
 	}
 	.header-row {
 		display: grid;
@@ -1493,7 +1495,7 @@ RequestViewer.style = css`
 		border-bottom: none;
 	}
 	.header-key {
-		color: #93c5fd;
+		color: #1d4ed8;
 		font-family:
 			"JetBrains Mono", "SF Mono", "Fira Code", Consolas, "Liberation Mono",
 			monospace;
@@ -1501,7 +1503,7 @@ RequestViewer.style = css`
 		word-break: break-all;
 	}
 	.header-value {
-		color: #e5e7eb;
+		color: #111827;
 		word-break: break-word;
 		line-height: 1.35;
 	}
