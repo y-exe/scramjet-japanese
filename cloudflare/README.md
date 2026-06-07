@@ -6,7 +6,7 @@ Use these paths in Cloudflare Git integrations.
 Pages build command: pnpm pages:build:cloudflare
 Pages output directory: cloudflare/pages
 Pages root directory: /
-Worker name: proxy
+Worker name: scramjet-japanese
 Worker root directory: /
 Worker build command: leave empty
 Worker deploy command: npx wrangler deploy
@@ -16,7 +16,7 @@ Public endpoints:
 
 ```txt
 Frontend: https://y-proxy.pages.dev
-Worker: https://proxy.yexe.workers.dev
+Worker: https://scramjet-japanese.yexe.workers.dev
 VPS bridge: https://papi.yexe.xyz
 ```
 

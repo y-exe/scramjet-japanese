@@ -1,4 +1,4 @@
-name = "proxy"
+name = "scramjet-japanese"
 main = "cloudflare/worker/worker.ts"
 compatibility_date = "2026-06-02"
 workers_dev = true

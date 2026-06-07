@@ -9,7 +9,7 @@ VPS reverse proxy.
 ```txt
 browser
   -> https://y-proxy.pages.dev for static frontend files
-  -> https://proxy.yexe.workers.dev for /api/*, /wisp/*, /healthz
+  -> https://scramjet-japanese.yexe.workers.dev for /api/*, /wisp/*, /healthz
   -> https://papi.yexe.xyz as the Worker-facing VPS origin
   -> home PC Docker backend
 ```
@@ -45,17 +45,18 @@ PNPM_VERSION=10.12.1
 The committed production env points the Pages frontend at the Worker:
 
 ```env
-VITE_API_ORIGIN=https://proxy.yexe.workers.dev
-VITE_WISP_URL=wss://proxy.yexe.workers.dev/wisp/
+VITE_API_ORIGIN=https://scramjet-japanese.yexe.workers.dev
+VITE_WISP_URL=wss://scramjet-japanese.yexe.workers.dev/wisp/
 ```
 
-Because `y-proxy.pages.dev` and `proxy.yexe.workers.dev` are separate origins,
-the Worker must allow `https://y-proxy.pages.dev` through CORS.
+Because `y-proxy.pages.dev` and `scramjet-japanese.yexe.workers.dev` are
+separate origins, the Worker must allow `https://y-proxy.pages.dev` through CORS.
 
 ## Worker Git deploy
 
-Connect the existing Worker named `proxy` to the same GitHub repository. Use the
-repository root so Wrangler can read the root `wrangler.toml`:
+Connect the existing Worker named `scramjet-japanese` to the same GitHub
+repository. Use the repository root so Wrangler can read the root
+`wrangler.toml`:
 
 ```txt
 Root directory: /
@@ -86,7 +87,7 @@ With the current `workers.dev` / `pages.dev` split, no custom route is required
 yet. The Worker is directly available at:
 
 ```txt
-https://proxy.yexe.workers.dev
+https://scramjet-japanese.yexe.workers.dev
 ```
 
 If a custom domain is added later, route `/api/*`, `/wisp/*`, and `/healthz` to
