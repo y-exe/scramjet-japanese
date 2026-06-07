@@ -14,6 +14,7 @@ jobs:
     env:
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
     steps:
       - uses: actions/checkout@v4
 
@@ -39,7 +40,14 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build Pages assets
+        env:
+          SKIP_WASM_SNIP: "1"
         run: pnpm pages:build
+
+      - name: Check Cloudflare secrets
+        run: |
+          test -n "$CLOUDFLARE_ACCOUNT_ID" || (echo "::error::CLOUDFLARE_ACCOUNT_ID repository secret is not set" && exit 1)
+          test -n "$CLOUDFLARE_API_TOKEN" || (echo "::error::CLOUDFLARE_API_TOKEN repository secret is not set" && exit 1)
 
       - name: Deploy Worker
         run: pnpm dlx wrangler deploy --config cloudflare/worker/wrangler.toml
