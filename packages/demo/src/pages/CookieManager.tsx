@@ -1,5 +1,6 @@
 import { css, type Component } from "dreamland/core";
 import { controller } from "..";
+import { backendUrl } from "../backend";
 
 type DomainSummary = {
 	domain: string;
@@ -8,7 +9,7 @@ type DomainSummary = {
 };
 
 async function fetchDomains(): Promise<DomainSummary[]> {
-	const response = await fetch("/api/cookies/domains", {
+	const response = await fetch(backendUrl("/api/cookies/domains"), {
 		credentials: "same-origin",
 		cache: "no-store",
 	});
@@ -22,7 +23,7 @@ async function fetchDomains(): Promise<DomainSummary[]> {
 }
 
 async function deleteDomain(domain: string) {
-	const response = await fetch(`/api/cookies/domains/${encodeURIComponent(domain)}`, {
+	const response = await fetch(backendUrl(`/api/cookies/domains/${encodeURIComponent(domain)}`), {
 		method: "DELETE",
 		credentials: "same-origin",
 	});
@@ -39,7 +40,7 @@ async function deleteDomain(domain: string) {
 }
 
 async function deleteAll() {
-	const response = await fetch("/api/cookies/state", {
+	const response = await fetch(backendUrl("/api/cookies/state"), {
 		method: "DELETE",
 		credentials: "same-origin",
 	});

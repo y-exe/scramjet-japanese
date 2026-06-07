@@ -5,6 +5,7 @@ packages/core/rewriter/wasm/out
 packages/core/rewriter/*.js
 packages/core/blob-report
 dist
+cloudflare/pages
 .env
 .cookie-store
 .devserver.log

@@ -1,0 +1,25 @@
+FROM node:20-bookworm-slim
+
+WORKDIR /app
+
+RUN corepack enable
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY patches ./patches
+COPY packages/bootstrap/package.json packages/bootstrap/package.json
+COPY packages/controller/package.json packages/controller/package.json
+COPY packages/core/package.json packages/core/package.json
+COPY packages/create-proxy-app/package.json packages/create-proxy-app/package.json
+COPY packages/demo/package.json packages/demo/package.json
+COPY packages/rpc/package.json packages/rpc/package.json
+COPY packages/runway/package.json packages/runway/package.json
+COPY packages/utils/package.json packages/utils/package.json
+
+RUN corepack pnpm install --frozen-lockfile --prod=false
+
+COPY server ./server
+
+ENV EDGE_BACKEND_PORT=4143
+EXPOSE 4143
+
+CMD ["corepack", "pnpm", "backend:edge"]

@@ -97,6 +97,13 @@ const COOKIE_STATE_KEY = "cookies";
 const SERVER_COOKIE_STATE_ENDPOINT = "/api/cookies/state";
 const BROADCASTCHANNEL_NAME = "__scramjet_controller_channel";
 
+function serverCookieStateEndpoint() {
+	const apiOrigin =
+		(globalThis as typeof globalThis & { __SCRAMJET_API_ORIGIN?: string })
+			.__SCRAMJET_API_ORIGIN || "";
+	return `${apiOrigin.replace(/\/$/, "")}${SERVER_COOKIE_STATE_ENDPOINT}`;
+}
+
 let cookieDbPromise: Promise<IDBDatabase> | null = null;
 
 function parsePersistedCookieState(
@@ -199,7 +206,7 @@ async function writeCookieState(
 
 async function readServerCookieState(): Promise<PersistedCookieState | null> {
 	try {
-		const response = await fetch(SERVER_COOKIE_STATE_ENDPOINT, {
+		const response = await fetch(serverCookieStateEndpoint(), {
 			credentials: "same-origin",
 			cache: "no-store",
 		});
@@ -226,7 +233,7 @@ async function writeServerCookieState(
 	updatedAt: number
 ): Promise<PersistedCookieState | null> {
 	try {
-		const response = await fetch(SERVER_COOKIE_STATE_ENDPOINT, {
+		const response = await fetch(serverCookieStateEndpoint(), {
 			method: "PUT",
 			credentials: "same-origin",
 			headers: {

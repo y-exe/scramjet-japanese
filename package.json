@@ -8,8 +8,10 @@
 	"license": "AGPL-3.0-only",
 	"packageManager": "pnpm@10.12.1",
 	"scripts": {
-		"build": "rspack build --mode production",
+		"build": "node --import tsx ./node_modules/@rspack/cli/bin/rspack.js build --mode production",
+		"pages:build": "pnpm rewriter:build && pnpm build && pnpm --filter @mercuryworkshop/scramjet-demo build && node scripts/prepare-pages-output.mjs",
 		"dev": "tsx devserver.ts",
+		"backend:edge": "tsx server/edgeBackend.ts",
 		"migrate:cookies": "node database/migrate-cookies.mjs",
 		"rewriter:build": "pnpm --filter @mercuryworkshop/scramjet rewriter:build",
 		"preinstall": "npx only-allow pnpm"

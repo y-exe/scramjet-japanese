@@ -1,5 +1,6 @@
 export interface Env {
   VPS_ORIGIN: string;
+  ALLOWED_ORIGIN?: string;
 }
 
 const HOP_BY_HOP_HEADERS = new Set([
@@ -40,8 +41,12 @@ function copyRequestHeaders(
 
 function toUpstreamUrl(requestUrl: URL, origin: string) {
   const upstreamBase = new URL(origin);
+  const basePath = upstreamBase.pathname.replace(/\/$/, "");
+  const requestPath = requestUrl.pathname.startsWith("/")
+    ? requestUrl.pathname
+    : `/${requestUrl.pathname}`;
   const upstreamUrl = new URL(
-    requestUrl.pathname + requestUrl.search,
+    `${basePath}${requestPath}${requestUrl.search}`,
     upstreamBase,
   );
   upstreamUrl.hash = "";
@@ -75,6 +80,8 @@ function copyResponseHeaders(
   response: Response,
   upstreamOrigin: string,
   publicOrigin: string,
+  requestOrigin: string | null,
+  allowedOrigin?: string,
 ) {
   const headers = new Headers(response.headers);
   const location = rewriteLocation(
@@ -88,7 +95,38 @@ function copyResponseHeaders(
   headers.delete("x-powered-by");
   headers.set("x-proxy-edge", "yexe-workers");
 
+  if (allowedOrigin && requestOrigin === allowedOrigin) {
+    headers.set("access-control-allow-origin", allowedOrigin);
+    headers.set("access-control-allow-credentials", "true");
+    headers.append("vary", "Origin");
+  }
+
   return headers;
+}
+
+function isBackendRoute(pathname: string) {
+  return (
+    pathname === "/healthz" ||
+    pathname.startsWith("/api/") ||
+    pathname.startsWith("/wisp/")
+  );
+}
+
+function corsPreflight(request: Request, env: Env) {
+  const requestOrigin = request.headers.get("origin");
+  if (!env.ALLOWED_ORIGIN || requestOrigin !== env.ALLOWED_ORIGIN) return null;
+
+  return new Response(null, {
+    status: 204,
+    headers: {
+      "access-control-allow-origin": env.ALLOWED_ORIGIN,
+      "access-control-allow-credentials": "true",
+      "access-control-allow-methods": "GET,POST,PUT,PATCH,DELETE,OPTIONS",
+      "access-control-allow-headers":
+        request.headers.get("access-control-request-headers") || "content-type",
+      vary: "Origin",
+    },
+  });
 }
 
 export default {
@@ -98,6 +136,17 @@ export default {
     }
 
     const incomingUrl = new URL(request.url);
+    if (!isBackendRoute(incomingUrl.pathname)) {
+      return new Response("Worker only proxies backend routes.", {
+        status: 404,
+      });
+    }
+
+    if (request.method === "OPTIONS") {
+      const preflight = corsPreflight(request, env);
+      if (preflight) return preflight;
+    }
+
     const upstreamUrl = toUpstreamUrl(incomingUrl, env.VPS_ORIGIN);
     const isWebSocket =
       request.headers.get("upgrade")?.toLowerCase() === "websocket";
@@ -126,6 +175,8 @@ export default {
         response,
         new URL(env.VPS_ORIGIN).origin,
         incomingUrl.origin,
+        request.headers.get("origin"),
+        env.ALLOWED_ORIGIN,
       ),
     });
   },
