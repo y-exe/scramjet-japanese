@@ -19,17 +19,27 @@ public user URL.
 
 ## Frontend on Cloudflare Pages
 
-Build the frontend and required Scramjet assets for Pages:
+Build the frontend and required Scramjet assets for Pages locally:
 
 ```sh
 pnpm pages:build
 ```
 
-Use this Pages configuration:
+Use this Cloudflare Pages Git configuration:
 
 ```txt
-Build command: pnpm pages:build
+Framework preset: None
+Production branch: main
+Build command: pnpm pages:build:cloudflare
 Build output directory: cloudflare/pages
+Root directory: /
+```
+
+Add these Pages build environment variables:
+
+```txt
+NODE_VERSION=22
+PNPM_VERSION=10.12.1
 ```
 
 The committed production env points the Pages frontend at the Worker:
@@ -42,12 +52,15 @@ VITE_WISP_URL=wss://proxy.yexe.workers.dev/wisp/
 Because `y-proxy.pages.dev` and `proxy.yexe.workers.dev` are separate origins,
 the Worker must allow `https://y-proxy.pages.dev` through CORS.
 
-## Worker deploy
+## Worker Git deploy
 
-Use the fixed Worker folder:
+Connect the existing Worker named `proxy` to the same GitHub repository. Use the
+fixed Worker folder as the root directory:
 
-```sh
-cd cloudflare/worker
+```txt
+Root directory: cloudflare/worker
+Build command: leave empty
+Deploy command: npx wrangler deploy
 ```
 
 It is already configured for the current VPS bridge:
@@ -60,12 +73,6 @@ ALLOWED_ORIGIN = "https://y-proxy.pages.dev"
 If the Worker is on a different origin than Pages, set `ALLOWED_ORIGIN` too.
 Same-host routes are strongly preferred because browser credentials and service
 worker behavior stay simpler.
-
-Deploy:
-
-```sh
-npx wrangler deploy
-```
 
 With the current `workers.dev` / `pages.dev` split, no custom route is required
 yet. The Worker is directly available at:

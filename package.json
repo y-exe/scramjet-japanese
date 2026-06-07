@@ -10,6 +10,7 @@
 	"scripts": {
 		"build": "node --import tsx ./node_modules/@rspack/cli/bin/rspack.js build --mode production",
 		"pages:build": "pnpm rewriter:build && pnpm build && pnpm --filter @mercuryworkshop/scramjet-demo build && node scripts/prepare-pages-output.mjs",
+		"pages:build:cloudflare": "bash scripts/cloudflare-pages-build.sh",
 		"dev": "tsx devserver.ts",
 		"backend:edge": "tsx server/edgeBackend.ts",
 		"migrate:cookies": "node database/migrate-cookies.mjs",

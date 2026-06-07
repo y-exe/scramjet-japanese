@@ -22,7 +22,10 @@ if [ -f out/.build-hash ] && [ -f ../../dist/scramjet.wasm ] && [ "$SRC_HASH" !=
   exit 0
 fi
 
-REQUIRED_TOOLS="cargo wasm-bindgen wasm-opt"
+REQUIRED_TOOLS="cargo wasm-bindgen"
+if [ "${RELEASE:-0}" = "1" ]; then
+	REQUIRED_TOOLS="${REQUIRED_TOOLS} wasm-opt"
+fi
 if [ "${SKIP_WASM_SNIP:-0}" != "1" ]; then
 	REQUIRED_TOOLS="${REQUIRED_TOOLS} wasm-snip"
 fi
