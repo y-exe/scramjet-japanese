@@ -168,6 +168,8 @@ export default {
     });
 
     const response = await fetch(upstreamRequest);
+    if (isWebSocket) return response;
+
     return new Response(response.body, {
       status: response.status,
       statusText: response.statusText,
