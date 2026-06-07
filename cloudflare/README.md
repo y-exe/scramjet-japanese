@@ -7,7 +7,7 @@ Pages build command: pnpm pages:build:cloudflare
 Pages output directory: cloudflare/pages
 Pages root directory: /
 Worker name: proxy
-Worker root directory: cloudflare/worker
+Worker root directory: /
 Worker build command: leave empty
 Worker deploy command: npx wrangler deploy
 ```

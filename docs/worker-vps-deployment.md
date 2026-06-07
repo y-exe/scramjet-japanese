@@ -55,12 +55,20 @@ the Worker must allow `https://y-proxy.pages.dev` through CORS.
 ## Worker Git deploy
 
 Connect the existing Worker named `proxy` to the same GitHub repository. Use the
-fixed Worker folder as the root directory:
+repository root so Wrangler can read the root `wrangler.toml`:
 
 ```txt
-Root directory: cloudflare/worker
+Root directory: /
 Build command: leave empty
 Deploy command: npx wrangler deploy
+```
+
+If you want to target the nested config explicitly, this also works:
+
+```txt
+Root directory: /
+Build command: leave empty
+Deploy command: pnpm worker:deploy:cloudflare
 ```
 
 It is already configured for the current VPS bridge:
