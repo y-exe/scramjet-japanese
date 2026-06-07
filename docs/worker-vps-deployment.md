@@ -108,6 +108,16 @@ docker build -f Dockerfile.edge-backend -t scramjet-edge-backend .
 docker run --rm -p 4143:4143 --env-file .env scramjet-edge-backend
 ```
 
+On this Windows host, use the redeploy script after backend changes:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/redeploy-edge-backend.ps1
+```
+
+It rebuilds `scramjet-edge-backend:latest`, replaces the
+`proxy-edge-backend` container, keeps the `proxy-edge-cookie-store` volume, and
+checks `http://127.0.0.1:4143/healthz`.
+
 It listens on `EDGE_BACKEND_PORT` or `PORT`, defaulting to `4143`, and exposes:
 
 ```txt
