@@ -42,10 +42,8 @@ NODE_VERSION=22
 PNPM_VERSION=10.12.1
 ```
 
-The Pages output generator writes a Cloudflare `_headers` file with COOP/COEP
-headers. Scramjet needs the public Pages app to be cross-origin isolated for
-better JavaScript compatibility on sites that use synchronous XHR or
-`SharedArrayBuffer`-gated browser behavior.
+The Pages output generator writes a Cloudflare `_headers` file that keeps the
+service worker scope at `/`.
 
 The committed production env points the Pages frontend at the Worker:
 
