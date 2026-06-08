@@ -7,7 +7,6 @@ import {
 	CatchEscapedLinksPlugin,
 	UrlWatcherPlugin,
 } from "@mercuryworkshop/scramjet-utils";
-import { versionInfo } from "@mercuryworkshop/scramjet";
 import { cachePlugin, controller } from "..";
 import { demoSettingsStore } from "../store";
 import homepage from "./homepage.html?raw";
@@ -154,7 +153,7 @@ Omnibox.style = css`
 		width: 100%;
 		padding: 0.46em 0.75em;
 		font-size: 0.9em;
-		font-family: "Google Sans", "Noto Sans JP", system-ui, sans-serif;
+		font-family: "Google Sans", Arial, "Noto Sans JP", system-ui, sans-serif;
 		border: 1px solid #d1d5db;
 		border-radius: 999px;
 		background: #ffffff;
@@ -167,6 +166,112 @@ Omnibox.style = css`
 	}
 	.url-input::placeholder {
 		color: #9ca3af;
+	}
+`;
+
+const DotCanvas: Component<
+	{},
+	{},
+	{
+		canvas: HTMLCanvasElement;
+		container: HTMLDivElement;
+	}
+> = function (cx) {
+	cx.mount = () => {
+		const canvas = this.canvas;
+		const container = this.container;
+		if (!canvas || !container) return;
+
+		const ctx = canvas.getContext("2d");
+		if (!ctx) return;
+
+		let dots: Array<{
+			x: number;
+			y: number;
+			phase: number;
+			speed: number;
+			baseOpacity: number;
+		}> = [];
+		let animationFrameId = 0;
+		let time = 0;
+
+		const FIXED_SPACING = 28;
+		const FIXED_DOT_SIZE = 1.6;
+		const ANIMATION_SPEED = 0.035;
+
+		const resizeCanvas = () => {
+			const rect = container.getBoundingClientRect();
+			const dpr = window.devicePixelRatio || 1;
+			canvas.width = rect.width * dpr;
+			canvas.height = rect.height * dpr;
+			ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+			dots = [];
+			const cols = Math.ceil(rect.width / FIXED_SPACING);
+			const rows = Math.ceil(rect.height / FIXED_SPACING);
+
+			for (let i = 0; i <= cols; i++) {
+				for (let j = 0; j <= rows; j++) {
+					dots.push({
+						x: i * FIXED_SPACING,
+						y: j * FIXED_SPACING,
+						phase: Math.random() * Math.PI * 2,
+						speed: 0.5 + Math.random() * 0.5,
+						baseOpacity: 0.2 + Math.random() * 0.3,
+					});
+				}
+			}
+		};
+
+		const animate = () => {
+			const rect = container.getBoundingClientRect();
+			ctx.clearRect(0, 0, rect.width, rect.height);
+			ctx.fillStyle = "rgba(100, 100, 100, 1)";
+			time += ANIMATION_SPEED;
+
+			dots.forEach((dot) => {
+				const scale = (Math.sin(time * dot.speed + dot.phase) + 1) / 2;
+				ctx.globalAlpha = dot.baseOpacity + scale * 0.45;
+				ctx.fillRect(dot.x, dot.y, FIXED_DOT_SIZE, FIXED_DOT_SIZE);
+			});
+			ctx.globalAlpha = 1;
+
+			animationFrameId = requestAnimationFrame(animate);
+		};
+
+		resizeCanvas();
+		animate();
+
+		const observer = new ResizeObserver(resizeCanvas);
+		observer.observe(container);
+		window.addEventListener("pagehide", () => {
+			cancelAnimationFrame(animationFrameId);
+			observer.disconnect();
+		});
+	};
+
+	return (
+		<div class="dot-canvas" this={use(this.container)}>
+			<canvas this={use(this.canvas)}></canvas>
+		</div>
+	);
+};
+
+DotCanvas.style = css`
+	:scope {
+		position: absolute;
+		inset: 0;
+		z-index: 0;
+		pointer-events: none;
+		overflow: hidden;
+		isolation: isolate;
+	}
+
+	canvas {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
 	}
 `;
 
@@ -196,23 +301,7 @@ const BrowserView: Component<
 		browserState.frame = controller.createFrame(this.frameel, {
 			plugins: [cachePlugin, urlWatcher, catchEscapedLinks],
 		});
-		let realHomepage = homepage;
-		realHomepage = realHomepage.replaceAll(
-			"{{SCRAMJET_VERSION}}",
-			String(versionInfo.version)
-		);
-		realHomepage = realHomepage.replaceAll(
-			"{{SCRAMJET_BUILD}}",
-			String(versionInfo.build)
-		);
-		realHomepage = realHomepage.replaceAll(
-			"{{SCRAMJET_DATE_PRETTY}}",
-			new Date(versionInfo.date).toLocaleString(undefined, {
-				dateStyle: "short",
-				timeStyle: "short",
-			})
-		);
-		this.frameel.src = `data:text/html;base64,${btoa(realHomepage)}`;
+		this.frameel.src = `data:text/html;base64,${btoa(homepage)}`;
 
 		let goto = new URL(location.href).searchParams.get("goto");
 		if (goto) {
@@ -236,6 +325,7 @@ const BrowserView: Component<
 			{use(browserState.hasNavigated).map((hasNavigated) =>
 				hasNavigated ? null : (
 					<div class="start-overlay">
+						<DotCanvas />
 						<form
 							class="start-panel"
 							on:submit={(e: SubmitEvent) => {
@@ -244,17 +334,20 @@ const BrowserView: Component<
 							}}
 						>
 							<div class="start-copy">
+								<div class="brand-pill">
+									<img src="/assets/scramjet-mini.png" alt="" aria-hidden="true" />
+									<span>ScramJet フォーク</span>
+								</div>
 								<h2>
-									Filtering <span class="jp-title">回避等</span>
+									Filtering <span class="jp-title">回避</span>
 								</h2>
 								<h1>Persistent Proxy</h1>
 								<p>
-									URLを入力して、そのままプロキシ経由で開けます。Cookieは
-									Scramjet のブラウザ内ストレージに保持されます。
+									URL または検索ワードを入力して、そのままプロキシ経由で開けます。
 								</p>
 							</div>
 							<div class="start-card">
-								<div class="card-section primary-section">
+								<div class="card-section">
 									<h3>サイトを開く</h3>
 									<p>URL または検索ワード</p>
 									<div class="start-row">
@@ -268,7 +361,6 @@ const BrowserView: Component<
 												this.heroInput = (e.target as HTMLInputElement).value;
 											}}
 										/>
-										<button type="submit">開く</button>
 									</div>
 									<div class="quick-links">
 										<button type="button" on:click={() => navigateTo("google.com")}>
@@ -284,23 +376,14 @@ const BrowserView: Component<
 											Discord
 										</button>
 									</div>
-								</div>
-								<div class="card-section side-section">
-									<h3>Session</h3>
-									<div class="session-list">
-										<div>
-											<strong>Cookie Jar</strong>
-											<span>IndexedDB に保存</span>
-										</div>
-										<div>
-											<strong>Transport</strong>
-											<span>Wisp over localhost</span>
-										</div>
-										<div>
-											<strong>Debug</strong>
-											<span>リクエスト確認に対応</span>
-										</div>
-									</div>
+									<button class="open-button" type="submit">
+										<span class="open-label">Open</span>
+										<span class="open-hover">
+											Open
+											<span class="material-symbols-outlined">arrow_forward</span>
+										</span>
+										<span class="open-fill"></span>
+									</button>
 								</div>
 							</div>
 						</form>
@@ -311,8 +394,7 @@ const BrowserView: Component<
 										<span>Persistent Proxy</span>
 									</div>
 									<p class="footer-copy">
-										Scramjet をベースにした軽量Webプロキシです。URL入力、
-										ブラウザ内Cookie保存、リクエスト確認をひとつの画面にまとめています。
+										Scramjet ベースの軽量 Web プロキシです。URL 入力、Cookie 保存、リクエスト確認をひとつの画面にまとめています。
 									</p>
 								</div>
 								<div class="footer-links">
@@ -326,18 +408,18 @@ const BrowserView: Component<
 										</a>
 									</div>
 									<div>
-										<h4>ツール</h4>
+										<h4>Tools</h4>
 										<a href="#" on:click={(e: MouseEvent) => e.preventDefault()}>
 											Cookie
 										</a>
 										<a href="#" on:click={(e: MouseEvent) => e.preventDefault()}>
-											リクエスト
+											Requests
 										</a>
 									</div>
 								</div>
 							</div>
 							<div class="footer-bottom">
-								<span>© 2026 yexe. All rights reserved.</span>
+								<span>Copyright 2026 yexe. All rights reserved.</span>
 								<span>Powered by Scramjet</span>
 							</div>
 						</footer>
@@ -358,6 +440,7 @@ BrowserView.style = css`
 		flex-direction: column;
 		font-family:
 			"Google Sans",
+			Arial,
 			"Noto Sans JP",
 			Inter,
 			system-ui,
@@ -380,13 +463,6 @@ BrowserView.style = css`
 		inset: 64px 0 0;
 		display: block;
 		background-color: #ffffff;
-		background-image:
-			radial-gradient(#e5e7eb 1px, transparent 1px),
-			radial-gradient(#f3f4f6 1px, transparent 1px);
-		background-position:
-			0 0,
-			12px 12px;
-		background-size: 24px 24px;
 		color: #111827;
 		z-index: 2;
 		overflow: auto;
@@ -400,6 +476,8 @@ BrowserView.style = css`
 		padding: 82px 0 70px;
 		display: grid;
 		gap: 38px;
+		position: relative;
+		z-index: 1;
 	}
 
 	.start-copy {
@@ -412,14 +490,36 @@ BrowserView.style = css`
 	.start-panel h2,
 	.start-panel h1 {
 		margin: 0;
-		font-size: clamp(1.7rem, 3.1vw, 2.9rem);
+		font-size: clamp(1.85rem, 3.35vw, 3.1rem);
 		font-weight: 800;
 		letter-spacing: 0;
 		line-height: 1.08;
 	}
 
+	.brand-pill {
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		margin-bottom: 14px;
+		border: 1px solid #e5e7eb;
+		border-radius: 999px;
+		background: rgba(255, 255, 255, 0.82);
+		box-shadow: 0 1px 2px rgba(17, 24, 39, 0.06);
+		padding: 6px 12px;
+		color: #4b5563;
+		font-size: 0.76rem;
+		font-weight: 800;
+		line-height: 1;
+	}
+
+	.brand-pill img {
+		width: 18px;
+		height: 18px;
+		object-fit: contain;
+	}
+
 	.jp-title {
-		font-family: "Noto Sans JP", "Google Sans", system-ui, sans-serif;
+		font-family: "Noto Sans JP", "Google Sans", Arial, system-ui, sans-serif;
 		font-weight: 800;
 	}
 
@@ -436,16 +536,18 @@ BrowserView.style = css`
 
 	.start-copy p {
 		width: min(620px, 100%);
-		margin: 22px 0 0;
+		margin: 18px 0 0;
 		color: #6b7280;
 		font-size: 1.08rem;
-		line-height: 1.75;
+		line-height: 1.7;
 	}
 
 	.start-card {
-		display: grid;
-		grid-template-columns: minmax(0, 1.2fr) minmax(250px, 0.8fr);
-		min-height: 330px;
+		display: block;
+		width: min(560px, 100%);
+		height: fit-content;
+		margin: 0 auto;
+		min-height: unset;
 		border: 1px solid #27272a;
 		border-radius: 16px;
 		background: #050505;
@@ -454,6 +556,8 @@ BrowserView.style = css`
 		overflow: hidden;
 		font-family:
 			"Google Sans",
+			Arial,
+			"Noto Sans JP",
 			Inter,
 			system-ui,
 			-apple-system,
@@ -462,46 +566,41 @@ BrowserView.style = css`
 	}
 
 	.card-section {
-		padding: 36px;
+		min-height: unset;
+		padding: 40px 30px;
 		display: flex;
 		flex-direction: column;
-		justify-content: center;
-	}
-
-	.primary-section {
-		border-right: 1px solid #27272a;
-	}
-
-	.side-section {
-		background: rgba(255, 255, 255, 0.045);
+		justify-content: flex-start;
+		text-align: center;
 	}
 
 	.card-section h3 {
-		margin: 0 0 8px;
-		font-size: 1.28rem;
+		margin: 0 0 7px;
+		font-size: 1.45rem;
 		font-weight: 800;
 	}
 
 	.card-section p {
-		margin: 0 0 22px;
+		margin: 0 0 14px;
 		color: #a1a1aa;
-		font-size: 0.86rem;
+		font-size: 1rem;
 	}
 
 	.start-row {
 		display: grid;
-		grid-template-columns: 1fr auto;
-		gap: 10px;
+		grid-template-columns: 1fr;
+		gap: 14px;
+		align-items: stretch;
 	}
 
 	.start-row input {
 		min-width: 0;
 		border: 1px solid #3f3f46;
-		border-radius: 10px;
+		border-radius: 8px;
 		background: #18181b;
 		color: #ffffff;
 		font: inherit;
-		font-size: 0.95rem;
+		font-size: 1.05rem;
 		padding: 0.95em 1em;
 		outline: none;
 		text-align: center;
@@ -512,15 +611,97 @@ BrowserView.style = css`
 		box-shadow: 0 0 0 3px rgba(88, 101, 242, 0.18);
 	}
 
-	.start-row button {
-		border: 1px solid #ffffff;
-		border-radius: 10px;
+	.open-button {
+		position: relative;
+		width: 128px;
+		min-width: 128px;
+		align-self: center;
+		margin-top: 12px;
+		border: 1px solid #e5e7eb;
+		border-radius: 999px;
 		background: #ffffff;
-		color: #050505;
+		color: #1f2937;
 		cursor: pointer;
 		font: inherit;
-		font-weight: 800;
-		padding: 0.95em 1.15em;
+		font-size: 0.98rem;
+		font-weight: 700;
+		padding: 0.74rem 1rem;
+		overflow: hidden;
+		text-align: center;
+		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+		transition:
+			box-shadow 0.3s ease,
+			transform 0.3s ease;
+	}
+
+	.open-button:hover {
+		box-shadow: 0 8px 24px rgba(0, 0, 0, 0.20);
+	}
+
+	.open-label {
+		position: relative;
+		z-index: 2;
+		display: inline-block;
+		transform: translateX(4px);
+		transition:
+			transform 0.3s ease,
+			opacity 0.3s ease;
+	}
+
+	.open-hover {
+		position: absolute;
+		inset: 0;
+		z-index: 3;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 8px;
+		color: #ffffff;
+		opacity: 0;
+		transform: translateX(48px);
+		transition:
+			transform 0.3s ease,
+			opacity 0.3s ease;
+	}
+
+	.open-hover .material-symbols-outlined {
+		font-size: 16px !important;
+	}
+
+	.open-fill {
+		position: absolute;
+		left: 20%;
+		top: 40%;
+		z-index: 1;
+		width: 8px;
+		height: 8px;
+		border-radius: 8px;
+		background: #000000;
+		transform: scale(1);
+		transition:
+			left 0.3s ease,
+			top 0.3s ease,
+			width 0.3s ease,
+			height 0.3s ease,
+			transform 0.3s ease;
+	}
+
+	.open-button:hover .open-label {
+		opacity: 0;
+		transform: translateX(48px);
+	}
+
+	.open-button:hover .open-hover {
+		opacity: 1;
+		transform: translateX(0);
+	}
+
+	.open-button:hover .open-fill {
+		left: 0;
+		top: 0;
+		width: 100%;
+		height: 100%;
+		transform: scale(1.8);
 	}
 
 	.quick-links {
@@ -528,7 +709,7 @@ BrowserView.style = css`
 		flex-wrap: wrap;
 		gap: 8px;
 		justify-content: center;
-		margin-top: 18px;
+		margin-top: 12px;
 	}
 
 	.quick-links button {
@@ -538,40 +719,13 @@ BrowserView.style = css`
 		color: #d4d4d8;
 		cursor: pointer;
 		font: inherit;
-		font-size: 0.78rem;
-		padding: 0.55em 0.8em;
+		font-size: 0.9rem;
+		padding: 0.58em 0.88em;
 	}
 
 	.quick-links button:hover {
 		border-color: #5865f2;
 		color: #ffffff;
-	}
-
-	.session-list {
-		display: grid;
-		gap: 12px;
-	}
-
-	.session-list div {
-		border: 1px solid #27272a;
-		border-radius: 12px;
-		background: rgba(24, 24, 27, 0.72);
-		padding: 13px;
-	}
-
-	.session-list strong,
-	.session-list span {
-		display: block;
-	}
-
-	.session-list strong {
-		font-size: 0.9rem;
-	}
-
-	.session-list span {
-		color: #a1a1aa;
-		font-size: 0.76rem;
-		margin-top: 4px;
 	}
 
 	.proxy-footer {
@@ -653,24 +807,20 @@ BrowserView.style = css`
 
 		.start-panel h2,
 		.start-panel h1 {
-			font-size: clamp(1.55rem, 7.2vw, 2.2rem);
-		}
-
-		.start-card {
-			grid-template-columns: 1fr;
-		}
-
-		.primary-section {
-			border-right: 0;
-			border-bottom: 1px solid #27272a;
+			font-size: clamp(1.7rem, 7.2vw, 2.35rem);
 		}
 
 		.start-row {
 			grid-template-columns: 1fr;
 		}
 
+		.open-button {
+			width: 100%;
+			min-width: 0;
+		}
+
 		.card-section {
-			padding: 24px;
+			padding: 32px 22px;
 		}
 
 		.footer-inner,

@@ -110,7 +110,7 @@ const App: Component<
 };
 
 App.style = css`
-	@import url("https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..800;1,17..18,400..800&family=Noto+Sans+JP:wght@400;500;700;800&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,400,0,0");
+	@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;800&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,400,0,0");
 
 	:scope {
 		width: 100vw;
@@ -128,6 +128,7 @@ App.style = css`
 		box-sizing: border-box;
 		font-family:
 			"Google Sans",
+			Arial,
 			"Noto Sans JP",
 			Inter,
 			system-ui,
@@ -166,7 +167,7 @@ App.style = css`
 		display: inline-flex;
 		align-items: center;
 		color: #111827;
-		font-family: "Google Sans", "Noto Sans JP", system-ui, sans-serif;
+		font-family: "Google Sans", Arial, "Noto Sans JP", system-ui, sans-serif;
 		font-size: 1.25rem;
 		font-weight: 800;
 		letter-spacing: 0;
@@ -178,13 +179,13 @@ App.style = css`
 		flex: 1;
 		align-items: stretch;
 		gap: 2px;
-		font-family: "Google Sans", "Noto Sans JP", system-ui, sans-serif;
+		font-family: "Google Sans", Arial, "Noto Sans JP", system-ui, sans-serif;
 	}
 	.tab-button {
 		border: 1px solid transparent;
 		background: transparent;
 		color: #6b7280;
-		font-family: "Google Sans", "Noto Sans JP", system-ui, sans-serif;
+		font-family: "Google Sans", Arial, "Noto Sans JP", system-ui, sans-serif;
 		padding: 0 15px;
 		border-radius: 8px;
 		cursor: pointer;

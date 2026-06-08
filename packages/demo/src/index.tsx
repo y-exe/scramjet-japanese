@@ -46,50 +46,15 @@ async function waitForControllerOrReady(timeoutMs = 10000): Promise<void> {
 }
 
 async function init() {
-	const interstitial: any = (
-		<LoadInterstitial status={"Loading"}></LoadInterstitial>
-	);
+	const interstitial: any = <LoadInterstitial />;
 	document.body.append(interstitial);
 	interstitial.showModal();
 
 	try {
 		const registration = await navigator.serviceWorker.register("./sw.js");
 
-		// Non-blocking progress updates on state transitions.
-		const updateStatus = (sw: ServiceWorker | null) => {
-			if (!sw) return;
-			const set = (msg: string) => (interstitial.$.state.status = msg);
-			const apply = () => {
-				switch (sw.state) {
-					case "installing":
-						set("Installing service worker...");
-						break;
-					case "installed":
-						set("Service worker installed, waiting to activate...");
-						break;
-					case "activating":
-						set("Activating service worker...");
-						break;
-					case "activated":
-						set("Service worker activated");
-						break;
-					case "redundant":
-						set("Service worker became redundant");
-						break;
-				}
-			};
-			apply();
-			sw.addEventListener("statechange", apply);
-		};
-
-		updateStatus(registration.installing ?? registration.waiting ?? null);
-
 		// Wait for control or readiness with a timeout; don't hang the UI on updates.
-		interstitial.$.state.status =
-			"Waiting for service worker to take control...";
 		await waitForControllerOrReady(10000);
-		interstitial.$.state.status =
-			"Service worker ready, waiting for controller init";
 		const readySw = navigator.serviceWorker.controller ?? registration.active;
 		if (!readySw) {
 			throw new Error("No service worker available for controller");
@@ -101,7 +66,6 @@ async function init() {
 		});
 		await controller.wait();
 		console.log(controller);
-		interstitial.$.state.status = "Controller initialized";
 		interstitial.close();
 	} catch (e) {
 		console.error("Error during service worker registration:", e);
