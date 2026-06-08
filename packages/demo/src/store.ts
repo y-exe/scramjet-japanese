@@ -13,6 +13,41 @@ const DEFAULT_WISP_URL = import.meta.env.VITE_WISP_URL;
 const DEFAULT_TRANSPORT: AvailableTransports = "libcurl";
 const DEFAULT_HOME_URL = "https://google.com";
 const DEFAULT_MAX_REQUESTS = 200;
+const SETTINGS_STORAGE_KEY = "scramjet-demo-settings-v2";
+const LEGACY_SETTINGS_STORAGE_KEY = "scramjet-demo-settings";
+const STALE_WISP_HOSTS = new Set(["proxy.yexe.workers.dev"]);
+
+function getStoredSettings(key: string) {
+	try {
+		const raw = localStorage.getItem(key);
+		return raw ? JSON.parse(raw) : null;
+	} catch {
+		return null;
+	}
+}
+
+function seedSettingsFromLegacyStore() {
+	if (localStorage.getItem(SETTINGS_STORAGE_KEY)) return;
+
+	const legacy = getStoredSettings(LEGACY_SETTINGS_STORAGE_KEY);
+	if (!legacy || typeof legacy !== "object") return;
+
+	const next = { ...legacy } as { wispUrl?: unknown };
+	if (typeof next.wispUrl === "string") {
+		try {
+			const host = new URL(next.wispUrl).host;
+			if (STALE_WISP_HOSTS.has(host)) {
+				next.wispUrl = DEFAULT_WISP_URL;
+			}
+		} catch {
+			next.wispUrl = DEFAULT_WISP_URL;
+		}
+	}
+
+	localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(next));
+}
+
+seedSettingsFromLegacyStore();
 
 export const demoSettingsStore = createStore(
 	{
@@ -22,7 +57,7 @@ export const demoSettingsStore = createStore(
 		maxRequests: DEFAULT_MAX_REQUESTS,
 	},
 	{
-		ident: "scramjet-demo-settings",
+		ident: SETTINGS_STORAGE_KEY,
 		backing: "localstorage",
 		autosave: "auto",
 	}
