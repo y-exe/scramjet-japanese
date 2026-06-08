@@ -1,21 +1,6 @@
 name: CI
 
 on:
-  push:
-    paths-ignore: &ci_ignore_paths
-      - ".zed/**"
-      - ".vscode/**"
-      # Docs
-      - "documentation/**"
-      - "**/*.md"
-      # The README is included in the Typedoc
-      - "!README.md"
-      # Formatters
-      - "eslint.config.json"
-      - "prettier.config.json"
-      - ".editorconfig"
-  pull_request:
-    paths-ignore: *ci_ignore_paths
   workflow_dispatch:
 
 env:
