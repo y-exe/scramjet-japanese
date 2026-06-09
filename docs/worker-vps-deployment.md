@@ -129,6 +129,25 @@ It listens on `EDGE_BACKEND_PORT` or `PORT`, defaulting to `4143`, and exposes:
 /healthz
 ```
 
+The backend is hardened for public proxy operation:
+
+```txt
+Wisp destination ports: 80, 443 only
+Wisp UDP: disabled
+Direct IP destinations: disabled
+Private and loopback IP destinations: disabled
+Per-host stream limit: WISP_STREAM_LIMIT_PER_HOST, default 8
+Total stream limit: WISP_STREAM_LIMIT_TOTAL, default 64
+DNS servers: WISP_DNS_SERVERS, default 1.1.1.1,1.0.0.1
+```
+
+Set `EDGE_SHARED_SECRET` on both the Docker backend and Cloudflare Worker to
+block direct use of `papi.yexe.xyz`. The Worker forwards the secret as
+`x-edge-secret`; direct requests without it receive `403`.
+
+Do not commit the real secret. Keep it in `.env` for Docker and in Cloudflare
+Worker environment secrets or variables.
+
 ## VPS reverse proxy shape
 
 The VPS should proxy Worker-facing backend traffic to the home PC backend. With

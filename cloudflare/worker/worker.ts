@@ -1,6 +1,7 @@
 export interface Env {
   VPS_ORIGIN: string;
   ALLOWED_ORIGIN?: string;
+  EDGE_SHARED_SECRET?: string;
 }
 
 const HOP_BY_HOP_HEADERS = new Set([
@@ -35,6 +36,9 @@ function copyRequestHeaders(
   headers.set("x-forwarded-prefix", "");
   headers.set("x-worker-origin", incomingUrl.origin);
   headers.set("x-upstream-origin", upstreamUrl.origin);
+  if (isWebSocket) {
+    headers.set("x-wisp-proxy", "cloudflare-worker");
+  }
 
   return headers;
 }
@@ -156,6 +160,9 @@ export default {
       upstreamUrl,
       isWebSocket,
     );
+    if (env.EDGE_SHARED_SECRET) {
+      headers.set("x-edge-secret", env.EDGE_SHARED_SECRET);
+    }
 
     const upstreamRequest = new Request(upstreamUrl.toString(), {
       method: request.method,
